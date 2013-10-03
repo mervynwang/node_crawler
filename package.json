@@ -1,0 +1,25 @@
+{
+  "name": "node_crawler",
+  "version": "0.9.1",
+  "description": "unit test & crawler",
+  "main": "unittest.js",
+  "dependencies": {
+    "cheerio": "~0.12.2",
+    "sleep": "~1.1.1",
+    "client-http": "~0.0.5",
+    "net": "~1.0.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "node unittest.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mervynwang/node_crawler"
+  },
+  "keywords": [
+    "crawler"
+  ],
+  "author": "mervyn wang <alpe.g2@gmail.com>",
+  "license": "MIT"
+}
