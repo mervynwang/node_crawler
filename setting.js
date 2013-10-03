@@ -8,8 +8,9 @@ exports.option =  {
 		cart : ""
 	},
 	completeSuccess : function(respond, send, uri, res, raw){
-		console.log('completeSuccess');
+		console.dir(send);
 
+		console.log('completeSuccess');
 	},
 	completeFail : function(respond, send, uri, res, excption){
 		console.log('fail');
@@ -24,13 +25,14 @@ exports.option =  {
 
 
 			},
-			post : { },
+			post : {member_id: 1,  member_token : 'aa'},
 			postActionFunc : function(thisTest, global, send){
 				global.cart = 'aaa';
+				global.member_token = 'token';
+				global.member_id = "6666";
 				console.dir(global);
 			},
 			unitTestFunc : function($, send, thisTest, res, raw){
-				//console.log($)
 				return true;
 			}
 		},
@@ -38,14 +40,11 @@ exports.option =  {
 			desc : "index",
 			path : "/",
 			opt : {},
-			preActionFunc : function(thisTest, global, send){
-				send.post = {"member_id" : global.cart}
-
-			},
-			post : {},
+			post : {member_id : ''},
 			postActionFunc : function(thisTest, global, send){},
 			unitTestFunc : function($, send, thisTest, res, raw){
-				console.log(send)
+				//console.log(send)
+				return true;
 
 			}
 		},
@@ -53,15 +52,15 @@ exports.option =  {
 			desc : "post as string",
 			path : "/",
 			opt : {},
-			preActionFunc : function(thisTest, global, send){},
-			post : "a=a&b=b",
+			preActionFunc : null,
+			post : "a=a&member_token=b",
 			postActionFunc : function(thisTest, global, send){
 				send.post = thisTest.post;
 
 			},
 			unitTestFunc : function($, send, thisTest, res, raw){
-				console.log(send)
-
+				//console.log(send)
+				return true;
 			}
 		},
 
