@@ -1,5 +1,7 @@
+
+
 exports.option =  {
-	hostname : "www.mervynw.info",
+	hostname : "mervyn.gracegiftsta.hiiir.com",
 	global : {
 		member_id : 0,
 		member_token : "",
@@ -8,52 +10,110 @@ exports.option =  {
 		cart : ""
 	},
 	completeSuccess : function(respond, send, uri, res, raw){
-		console.dir(send);
-
-		console.log('completeSuccess');
+        console.log('completeSuccess');
 	},
 	completeFail : function(respond, send, uri, res, excption){
-		console.log('fail');
-
+        console.log(excption);
+        console.log('fail');
 	},
 	test : [
-		{
-			desc : "index",
-			path : "/",
+ 		{
+			desc : "demo",
+			path : "/mobile/member/login",
+            
+            /**
+             * opt https, 
+             */
 			opt : {},
-			preActionFunc : function(thisTest, global, send){ 
-
-
+            
+            /**
+             * this function can be function or NULL
+             *
+             * change post/cookie/header before http request, 
+             *
+             * @param object global     this.global;
+             * @param object send       {post, cookie, header}
+             */
+			preActionFunc : function(global, send){},
+            
+            /**
+             * the data will send as http post, null | object | string
+             * ex. {"account":"wang@hiiir.com","password":"1234"}
+             * ex. account=wang@hiiir.com&password=1234
+             */
+			post : {},
+            
+            /**
+             * this function can be function or NULL
+             * 
+             * After receive http respond, you can process data for next request;
+             * 
+             * @param object $          http respond json OR jquery like object 
+             * @param object global     this
+             * @param string raw        http respond string 
+             * @param string res        http object (header, statusCode, ... ... )
+             * @param object send       data send
+             */
+			postActionFunc : function($, global, raw, res, send){
+				if($.status == "OK") {
+                    global.member_token = $.token;
+                    global.member_id = $.member.member_id;
+                    global.cart = $.member.cart || '';
+                }
 			},
-			post : {member_id: 1,  member_token : 'aa'},
-			postActionFunc : function(thisTest, global, send){
-				global.cart = 'aaa';
-				global.member_token = 'token';
-				global.member_id = "6666";
-				console.dir(global);
+            
+            /**
+             *  this function can be function or NULL
+             *
+             * Final Check you resond and return true will call this.completeSuccess else 
+             * this.completeFail 
+             * 
+             * @param object $          http respond json OR jquery like object 
+             * @param object send       data send
+             * @param string res        http object (header, statusCode, ... ... )
+             * @param string raw        http respond string 
+             *
+             */
+			unitTestFunc : function($, send, res, raw){
+                return (($.status == 'OK') && $.token);
+			}
+		},
+        
+        //---- real thing
+		{
+			desc : "api login",
+			path : "/mobile/member/login",
+			post : {"account":"taien_wang@hiiir.com","password":"@abcd1234"},
+			postActionFunc : function($, global, raw, send){
+				if($.status == "OK") {
+                    global.member_token = $.token;
+                    global.member_id = $.member.member_id;
+                    global.cart = $.member.cart || '';
+                }
 			},
 			unitTestFunc : function($, send, thisTest, res, raw){
-				return true;
+                return (($.status == 'OK') && $.token);
 			}
 		},
 		{
-			desc : "index",
-			path : "/",
+			desc : "getProductInfo",
+			path : "/mobile/product/getProductInfo",
 			opt : {},
-			post : {member_id : ''},
+			post : {"product_model_color_no":"3SGXIE522-300"},
 			postActionFunc : function(thisTest, global, send){},
 			unitTestFunc : function($, send, thisTest, res, raw){
-				//console.log(send)
+				console.log($.status);
 				return true;
-
 			}
 		},
 		{
-			desc : "post as string",
-			path : "/",
+			desc : "refund",
+			path : "/mobile/member/listRefund",
 			opt : {},
-			preActionFunc : null,
-			post : "a=a&member_token=b",
+			preActionFunc : function(e, g, s){
+
+            },
+			post : {"member_id":"", "token":""},
 			postActionFunc : function(thisTest, global, send){
 				send.post = thisTest.post;
 
@@ -64,20 +124,6 @@ exports.option =  {
 			}
 		},
 
-		"break",
-
-		{
-			desc : "should not show",
-			path : "/",
-			opt : {},
-			preActionFunc : function(thisTest, global, send){},
-			post : {},
-			postActionFunc : function(thisTest, global, send){},
-			unitTestFunc : function($, send, thisTest, res, raw){
-				console.log(send)
-
-			}
-		},		
 
 	]
 

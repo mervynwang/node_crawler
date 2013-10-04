@@ -8,6 +8,7 @@
     "sleep": "~1.1.1",
     "client-http": "~0.0.5",
     "net": "~1.0.0"
+    "async": "~0.2.0"
   },
   "devDependencies": {},
   "scripts": {
