@@ -1,5 +1,4 @@
 
-
 exports.option =  {
 	hostname : "mervyn.gracegiftsta.hiiir.com",
 	global : {
@@ -19,7 +18,7 @@ exports.option =  {
 	test : [
  		{
 			desc : "demo",
-			path : "/mobile/member/login",
+			path : "/member/login",
             
             /**
              * opt https, 
@@ -78,53 +77,8 @@ exports.option =  {
                 return (($.status == 'OK') && $.token);
 			}
 		},
-        
-        //---- real thing
-		{
-			desc : "api login",
-			path : "/mobile/member/login",
-			post : {"account":"taien_wang@hiiir.com","password":"@abcd1234"},
-			postActionFunc : function($, global, raw, send){
-				if($.status == "OK") {
-                    global.member_token = $.token;
-                    global.member_id = $.member.member_id;
-                    global.cart = $.member.cart || '';
-                }
-			},
-			unitTestFunc : function($, send, thisTest, res, raw){
-                return (($.status == 'OK') && $.token);
-			}
-		},
-		{
-			desc : "getProductInfo",
-			path : "/mobile/product/getProductInfo",
-			opt : {},
-			post : {"product_model_color_no":"3SGXIE522-300"},
-			postActionFunc : function(thisTest, global, send){},
-			unitTestFunc : function($, send, thisTest, res, raw){
-				console.log($.status);
-				return true;
-			}
-		},
-		{
-			desc : "refund",
-			path : "/mobile/member/listRefund",
-			opt : {},
-			preActionFunc : function(e, g, s){
-
-            },
-			post : {"member_id":"", "token":""},
-			postActionFunc : function(thisTest, global, send){
-				send.post = thisTest.post;
-
-			},
-			unitTestFunc : function($, send, thisTest, res, raw){
-				//console.log(send)
-				return true;
-			}
-		},
-
-
+       
+ 
 	]
 
 };
