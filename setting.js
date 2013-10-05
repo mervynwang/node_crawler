@@ -17,11 +17,12 @@ exports.option =  {
 	},
 	test : [
  		{
+			no:0,
 			desc : "demo",
 			path : "/member/login",
             
             /**
-             * opt https, 
+             * opt https, pass, 
              */
 			opt : {},
             
