@@ -22,9 +22,13 @@ exports.option =  {
 			path : "/member/login",
             
             /**
-             * opt https, pass, 
+             * opt https:(boolean), pass:(boolena), hostname:(string)
              */
-			opt : {},
+			opt : {
+                https : 1,
+                pass : 1,
+                hostname : 'tw.yahoo.com'
+            },
             
             /**
              * this function can be function or NULL

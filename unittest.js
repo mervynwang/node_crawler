@@ -1,3 +1,9 @@
+/**
+ *
+ *
+ *
+ *
+ */
 
 //require
 var http = require('client-http'), 
@@ -9,8 +15,15 @@ cheerio = require('cheerio'),
 async = require('async'),
 config = require('./setting.js');
 
-var nu = 0, opt = config.option, total = opt.test.length, seq = [1, 100]
-, mem = true, argv = false;
+var nu = 0,
+ opt = config.option,
+ total = opt.test.length,
+ seq = [1, 100], 
+ mem = true, 
+ argv = false, 
+ breakSleep = 600;
+
+// 監看記憶體用 
 if(mem) var util = require('util');
 
 process.argv.forEach(function (v, i, array) {
@@ -43,8 +56,8 @@ async.whilst(
     function (callback) {
         doCrawler();
         
-        // 太快會錯亂
-        var sleepMsec = (opt.test[nu] && opt.test[nu].opt && opt.test[nu].opt.sleep) || 600;
+        // 太快輸出會錯亂
+        var sleepMsec = (opt.test[nu] && opt.test[nu].opt && opt.test[nu].opt.sleep) || breakSleep;
         setTimeout(callback, sleepMsec);
     },
     function (err) {}
@@ -68,15 +81,15 @@ function doCrawler(){
     // mark event end 
 
     var unit = opt.test[nu], 
-    turl = ((unit.opt && unit.opt.https && false)? 'https://' : 'http://') + opt.hostname + unit.path,
+    hostname = ((unit.opt && unit.opt.hostname) || opt.hostname),
+    turl = ((unit.opt && unit.opt.https && false)? 'https://' : 'http://') + hostname + unit.path,
     send = {post : {}, cookies : {}, header : null};
     
     // pass check
     if( !argv && (unit.opt && unit.opt.pass)) {nu++;return;};
 
-    if(isFunc(unit.preActionFunc)) {
-        unit.preActionFunc(opt.global, send)
-    } else if(typeof(unit.post) == 'string') {
+
+    if(typeof(unit.post) == 'string') {
         send.post = unit.post;
         for(var i in opt.global){
             var reg = new RegExp(i+'=');
@@ -87,8 +100,11 @@ function doCrawler(){
             send.post[i] = opt.global[i] || unit.post[i] || '';
         }
     }
+
+    if(isFunc(unit.preActionFunc)) {
+        unit.preActionFunc(opt.global, send)
+    }
     
-    //console.log(" now:: "  + nu);
     if(mem) console.log("\n\n"+util.inspect(process.memoryUsage()));
     http.request(turl, function(data, n, cookie, header, res) {
         console.log("\n======== " + unit.no + ". " + unit.desc + " ==========");
