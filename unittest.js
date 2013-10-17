@@ -13,18 +13,19 @@ fs = require('fs'),
 sleep = require('sleep'),
 cheerio = require('cheerio'),
 async = require('async'),
-config = require('./setting.js');
+config = require('./setting.js'),
+util = require('util'); // 監看記憶體用  & JSON depth
 
 var nu = 0,
  opt = config.option,
  total = opt.test.length,
- seq = [1, 100], 
+ seq = [1], 
  mem = true, 
  argv = false, 
  breakSleep = 600;
 
-// 監看記憶體用 
-if(mem) var util = require('util');
+
+
 
 process.argv.forEach(function (v, i, array) {
     if(i > 1) { 
@@ -33,26 +34,34 @@ process.argv.forEach(function (v, i, array) {
     }
 });
 
+
 if(argv) {
-    var run = [];
-    for(var i in opt.test){
-        var p = opt.test[i].no, thisOne = false;
-        for(var j in seq){
-            if(p == seq[j]) {
-                thisOne = true
-                break;
+    var run = [], runName = [];
+    for(var i in seq){
+        for(var j in opt.test){
+            var p = opt.test[j].no;
+            if(p == seq[i]) {
+                run.push(opt.test[j]);
+                runName.push(opt.test[j].desc);
             }
         }
-        
-        if(thisOne) run.push(opt.test[i]);
     }
     opt.test = run;
-    total = opt.test.length
+    total = opt.test.length;
+    console.log("run : %s", total);
+    console.log("run : %s", runName.join(', '));
 }
+
+/*
+if(argv){
+    console.log(opt.test);
+    process.exit();
+}
+*/
 
 // run 
 async.whilst(
-    function () { return nu < total; },
+    function () { return nu <= total; },
     function (callback) {
         doCrawler();
         
@@ -69,6 +78,8 @@ function doCrawler(){
     var isFunc = function(name){
         return (typeof(name) == 'function');
     };
+    
+    console.log("now: %s, total: %s", nu, total);
 
     // mark event
     if( (!opt.test[nu]) || (opt.test[nu] == 'break')) {
@@ -84,9 +95,10 @@ function doCrawler(){
     hostname = ((unit.opt && unit.opt.hostname) || opt.hostname),
     turl = ((unit.opt && unit.opt.https && false)? 'https://' : 'http://') + hostname + unit.path,
     send = {post : {}, cookies : {}, header : null};
+    nu++; //will run next;
     
     // pass check
-    if( !argv && (unit.opt && unit.opt.pass)) {nu++;return;};
+    if( unit.opt && unit.opt.pass) {return;};
 
 
     if(typeof(unit.post) == 'string') {
@@ -106,8 +118,9 @@ function doCrawler(){
     }
     
     if(mem) console.log("\n\n"+util.inspect(process.memoryUsage()));
+ 
     http.request(turl, function(data, n, cookie, header, res) {
-        console.log("\n======== " + unit.no + ". " + unit.desc + " ==========");
+        console.log("\n======== run "+ nu+'. ' + unit.no + ". " + unit.desc + " : "+ unit.path +" ==========");
         try{
             if(res.statusCode != 200) {
                 if(isFunc(opt.completeFail)) {
@@ -129,7 +142,7 @@ function doCrawler(){
                 if(unit.unitTestFunc(dd, send, unit, res, data)) {
                     if(isFunc(opt.completeSuccess)) opt.completeSuccess(dd, send, unit, res, data);
                 } else {
-                    if(isFunc(opt.completeFail)) opt.completeFail(data, send, unit, res, e, dd);
+                    if(isFunc(opt.completeFail)) opt.completeFail(data, send, unit, res, false, dd);
                 }
             } else {
                 if(isFunc(opt.completeSuccess)) {
@@ -138,12 +151,11 @@ function doCrawler(){
             }
 
             console.log("doCrawler completed!");
-        } catch (e) {
+        } catch (ex) {
             if(isFunc(opt.completeFail)) {
-                opt.completeFail(data, send, unit, res, e, dd)
+                opt.completeFail(data, send, unit, res, ex, dd)
             }             
         } finally {
-            nu++;
             return;
         }
     },
