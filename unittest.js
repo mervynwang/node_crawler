@@ -112,10 +112,16 @@ function doCrawler(){
             send.post[i] = opt.global[i] || unit.post[i] || '';
         }
     }
-
+    
+    if(isFunc(opt.preFunc)) {
+        opt.preFunc(opt.global, send)
+    }
+    
     if(isFunc(unit.preActionFunc)) {
         unit.preActionFunc(opt.global, send)
     }
+    
+    
     
     if(mem) console.log("\n\n"+util.inspect(process.memoryUsage()));
  
@@ -136,7 +142,11 @@ function doCrawler(){
 
             if(isFunc(unit.postActionFunc)) {
                 unit.postActionFunc(dd, opt.global, data, res, send);
-            }            
+            }
+
+            if(isFunc(opt.postFunc)) {
+                opt.postFunc(dd, opt.global, data, res, send);
+            }
             
             if((isFunc(unit.unitTestFunc)) ) {
                 if(unit.unitTestFunc(dd, send, unit, res, data)) {
